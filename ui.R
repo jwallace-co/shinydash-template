@@ -23,7 +23,6 @@ ui = navbarPage(
     useShinydashboard(),
     useShinyjs() # Enables the shinyJS package
   ),
-  
   navbarMenu("Age",
              tabPanel("Age groups",agegroup_page)
   ),

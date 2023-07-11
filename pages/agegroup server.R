@@ -43,16 +43,21 @@ agegroup_data_raw <- reactive({
 agegroup_data_filtered <- reactive({
   dat <- agegroup_data_raw()$data
   vars <- agegroup_vars()
+  opts <- list(year=input$agegroup_select_year,
+               status=input$agegroup_select_status,
+               var=input$agegroup_select_var,
+               values=input$agegroup_select_values) %>%
+    map(~ if(is.null(.x)) "--" else .x) # need to handle null values since these are generated server side
   
   # Filter
   dat <- dat %>%
-    filter(Status%in%input$agegroup_select_status) %>% # selected status
+    filter(Status%in%opts$status) %>% # selected status
     filter(Age!="Unknown") # remove missings
   
   # Filter on selected values if a variable has been chosen, and any values are selected
-  if (input$agegroup_select_var!="--" & input$agegroup_select_values[1]!="") {
-    var = input$agegroup_select_var
-    values = input$agegroup_select_values
+  if (opts$var!="--" & !opts$values[1]%in%c("","--")) {
+    var = opts$var
+    values = opts$values
     dat <- dat %>%
       filter(if_any(any_of(var),~.x%in%values)) # Syntax for filtering where the name of the variable and values are dynamic
   }
@@ -100,10 +105,16 @@ agegroup_graph_func <- reactive({
   
   # Data setup
   dat <- agegroup_data_filtered()
-  if (input$agegroup_select_var=="--") {
+  opts <- list(year=input$agegroup_select_year,
+               status=input$agegroup_select_status,
+               var=input$agegroup_select_var,
+               values=input$agegroup_select_values) %>%
+    map(~ if(is.null(.x)) "--" else .x) # need to handle null values since these are generated server side
+  
+  if (opts$var=="--") {
     dat <- mutate(dat,group="Civil Service") # Introduce a dummy variable if none is selected
   } else {
-    dat <- rename(dat,"group"=input$agegroup_select_var)
+    dat <- rename(dat,"group"=opts$var)
   }
   dat <- dat %>%
     arrange(group,Age) %>%

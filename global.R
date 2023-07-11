@@ -16,6 +16,8 @@ warning_text <- paste0("This dashboard is an example of using published data on 
 ################################################################################
 rounding <- function (x, accuracy) plyr::round_any(x, accuracy, janitor::round_half_up)
 
+pp <- function(...) print(paste0(...))
+
 ################################################################################
 # Functions
 ################################################################################
